@@ -1,57 +1,58 @@
-{{/* My Custom Hugo Blox */}}
-{{/* https://hugoblox.com */}}
+{{/* Hugo Blox: Biography 2 */}}
+{{/* Documentation: https://hugoblox.com/blocks/ */}}
+{{/* License: https://github.com/HugoBlox/hugo-blox-builder/blob/main/LICENSE.md */}}
 
-{{/* Initialise the block */}}
+{{/* Initialise */}}
 {{ $page := .wcPage }}
 {{ $block := .wcBlock }}
 
-{{/* Your Hugo variables */}}
-{{/* Access custom front matter content via `$block.content`. */}}
-{{/* E.g. access a `title` field via `$block.content.title`. */}}
-{{/* Pipe the field to `$page.RenderString` to parse it as Markdown. */}}
-{{ $title := $block.content.title | $page.RenderString }}
-{{ $text := $block.content.text | $page.RenderString }}
+{{ $author := $block.content.username | default "admin" }}
 
-{{/* Add your block layout below */}}
-{{/* Styles (in the form of vanilla CSS) can be added to the CSS file. */}}
-{{/* Tailwind styles can optionally be used with the extra step of compiling Tailwind. */}}
-{{/* Access custom front matter design options via `$block.design`. */}}
-{{/* E.g. access a `show_title` field via `$block.design.show_title`. */}}
+{{ $person_page_path := (printf "/authors/%s" $author) }}
+{{ $person_page := site.GetPage $person_page_path }}
+{{ if not $person_page }}
+{{ errorf "Could not find an author page at `%s`. Please check the value of `author` in your About widget and create an associated author page if one does not already exist. See https://docs.hugoblox.com/page-builder/#about " $person_page_path }}
+{{end}}
+{{ $person := $person_page.Params }}
+{{ $avatar := ($person_page.Resources.ByType "image").GetMatch "*avatar*" }}
 
-<div class="flex flex-col items-center max-w-prose mx-auto gap-3 justify-center">
+<main class="flex-auto">
+  <div class="sm:px-8 mt-16 sm:mt-32">
+    <div class="mx-auto w-full max-w-7xl lg:px-8">
+      <div class="relative px-4 sm:px-8 lg:px-12">
+        <div class="mx-auto max-w-2xl lg:max-w-5xl">
+          <div class="grid grid-cols-1 gap-y-16 lg:grid-cols-2 lg:grid-rows-[auto_1fr] lg:gap-y-12">
+            <div class="lg:pl-20">
+              <div class="max-w-xs px-2.5 lg:max-w-none">
+                {{ if $avatar }}
+                {{ $avatar_image := $avatar.Process "Fill 800x800 Center webp" }}
+              <img alt="{{$person_page.Title}}" class="aspect-square rotate-3 rounded-2xl bg-zinc-100 object-cover dark:bg-zinc-800" data-nimg="1" decoding="async"
+                                                              height="800" loading="lazy"
+                                                              src="{{ $avatar_image.RelPermalink }}"
+                                                              style="color: transparent;"
+                                                              width="800">
+                {{end}}
+                                                              </div>
+            </div>
+            <div class="lg:order-first lg:row-span-2"><h1
+              class="text-4xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-5xl">
+              {{ with ($block.content.title | emojify | $page.RenderString) | default $person_page.Title }}{{.}}{{end}}
+            </h1>
+              <div class="mt-6 space-y-7 text-base text-zinc-600 dark:text-zinc-400 prose dark:prose-invert">
+                {{ with ($block.content.text | emojify | $page.RenderString) | default $person_page.Content }}{{.}}{{end}}
+              </div>
+            </div>
+            <div class="lg:pl-20">
+              <div class="text-2xl sm:text-4xl pt-1 flex justify-center">
 
-  <div class="mb-6 text-3xl font-bold text-gray-900 dark:text-white">
-    {{ $title }}
-  </div>
+                {{ partial "social_links" $person_page }}
 
-  {{ with $text }}
-    <p class="prose prose-slate lg:prose-xl dark:prose-invert max-w-prose">{{ . }}</p>
-  {{ end }}
-</div>
-<section>
-  <div class="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-center md:gap-8">
-      <div>
-        <div class="max-w-lg md:max-w-none">
-          <h2 class="text-2xl font-semibold text-gray-900 sm:text-3xl">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.
-          </h2>
+              </div>
 
-          <p class="mt-4 text-gray-700">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur doloremque saepe
-            architecto maiores repudiandae amet perferendis repellendus, reprehenderit voluptas
-            sequi.
-          </p>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div>
-        <img
-          src="https://images.unsplash.com/photo-1731690415686-e68f78e2b5bd?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          class="rounded"
-          alt=""
-        />
       </div>
     </div>
   </div>
-</section>
+</main>
